@@ -2,6 +2,13 @@
 using UnityEngine;
 namespace Unity.TPS.Gameplay
 {
+    enum PlayState {
+        idle,
+        jumping,
+        crounch,
+        prone,
+        moving
+    }
     public class PlayerCharacterController : MonoBehaviour {
         // Start is called before the first frame update
         public float MoveSpeed = 3f;
@@ -17,45 +24,88 @@ namespace Unity.TPS.Gameplay
         public Camera PlayerCamera;
         CharacterController m_controller;
         public float JumpForce = 200f;
-        float vertSpeed = 0f;
-        public Vector3 MovementSpeed {get; set;}
+        public float vertSpeed = 0f;
+        public Vector3 MovementSpeed;
+        PlayerAnimatorController playerAnimatorController;
+        float lastJumpTime;
+        PlayState playState;
+        public float targetJumpSpeed = 0f;
+        public float fallSharpness = 4f;
+        public float fallSpeed = 0.1f;
+        public LayerMask GroundCheckLayers = -1;
+        public float GroundCheckDistance = 0.05f;
+        public bool isGrounded = false;
+        public float landHeight = 0.7f;
         void Start()
         {
             m_controller = GetComponent<CharacterController>();
             m_InputHandler = GetComponent<InputHandler>();
+            playerAnimatorController = GetComponent<PlayerAnimatorController>();
+            playState = PlayState.idle;
         }
 
         // Update is called once per frame
         void Update()
         {
            HandleCharactorMovement();
-           Debug.Log(MovementSpeed.sqrMagnitude);
         }
-        Vector3 Grounded(Vector3 targetVelocity) {
-            if (!m_controller.isGrounded) {
-                vertSpeed += -9.8f * 0.03f * Time.deltaTime;
-                if (vertSpeed < -10.0f) {
-                    vertSpeed = -10.0f;
-                }
-                targetVelocity.y += vertSpeed;
+        private void FixedUpdate() {
+            if (playState == PlayState.jumping && MovementSpeed.y < 0 && checkHeight(landHeight, out RaycastHit hit)) {
+                playerAnimatorController.setLandAni();
+                playState = PlayState.idle;
             }
-            else {
-                vertSpeed = 0f;
+        }
+        public float k_GroundCheckDistance = 0.07f;
+        public bool CheckGrounded() {
+            float chosenGroundCheckDistance = isGrounded ? (m_controller.skinWidth + GroundCheckDistance) : k_GroundCheckDistance;
+            if(checkHeight(chosenGroundCheckDistance, out RaycastHit hit)) {
+                return true;
             }
-            return targetVelocity;
+            return false;
+            // return Physics.Raycast(transform.position, -Vector3.up, 0.05f);
+        }
+        public bool checkHeight(float maxHeight, out RaycastHit hit0) {
+            hit0 = new RaycastHit();
+            if(Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(m_controller.height), m_controller.radius, Vector3.down, out RaycastHit hit, maxHeight, GroundCheckLayers,
+            QueryTriggerInteraction.Ignore
+            )) {
+                hit0 = hit;
+                return true;
+            }
+            return false;
         }
         void HandleCharactorMovement() {
             // m_RigidBody.MovePosition(m_RigidBody.position + movementDir * MoveSpeed * Time.deltaTime);
             Vector3 worldspaceMoveInput = transform.TransformVector(m_InputHandler.GetMoveInput());
-            Vector3 targetVelocity = worldspaceMoveInput * MoveSpeed;
-            // handle jump
-            if (m_InputHandler.GetJumpInputDown() && m_controller.isGrounded) {
-                Debug.Log("space");
-                targetVelocity = new Vector3(targetVelocity.x, 0f, targetVelocity.z);
-                targetVelocity += Vector3.up * JumpForce;
+            Vector3 targetSpeed = worldspaceMoveInput * MoveSpeed;
+            if (!CheckGrounded()) {
+                vertSpeed += -9.8f * fallSpeed * Time.deltaTime;
+                if (vertSpeed < -8.0f) {
+                    vertSpeed = -8.0f;
+                }
+                targetJumpSpeed += vertSpeed;
+            } else {
+                if (playerAnimatorController.isJumping())playerAnimatorController.resetJump();
+                isGrounded = true;
+                vertSpeed = 0f;
+                targetJumpSpeed = 0f;
+                MovementSpeed.y = 0f;
+                playState = PlayState.idle;
             }
-            MovementSpeed = Vector3.Lerp(MovementSpeed, targetVelocity, 10 * Time.deltaTime);
-            MovementSpeed = Grounded(MovementSpeed);
+            // handle jump
+            if (m_InputHandler.GetJumpInputDown() && CheckGrounded()) {
+                Debug.Log("space");
+                isGrounded = false;
+                targetJumpSpeed += JumpForce;
+                playState = PlayState.jumping;
+                lastJumpTime = Time.time;
+                playerAnimatorController.setJumpedAni();
+                print(targetJumpSpeed);
+            }
+            
+            MovementSpeed.y = Mathf.Lerp(MovementSpeed.y, targetJumpSpeed, fallSharpness * Time.deltaTime);
+            MovementSpeed.x = Mathf.Lerp(MovementSpeed.x, targetSpeed.x, 10 * Time.deltaTime);
+            MovementSpeed.z = Mathf.Lerp(MovementSpeed.z, targetSpeed.z, 10 * Time.deltaTime);
             m_controller.Move(MovementSpeed * Time.deltaTime);
             HandleRotation();
         }
@@ -71,6 +121,16 @@ namespace Unity.TPS.Gameplay
         }
         public Vector3 GetMovementSpeed() {
             return MovementSpeed;
+        }
+         Vector3 GetCapsuleBottomHemisphere()
+        {
+            return transform.position + (transform.up * m_controller.radius);
+        }
+
+        // Gets the center point of the top hemisphere of the character controller capsule    
+        Vector3 GetCapsuleTopHemisphere(float atHeight)
+        {
+            return transform.position + (transform.up * (atHeight - m_controller.radius));
         }
     }
     

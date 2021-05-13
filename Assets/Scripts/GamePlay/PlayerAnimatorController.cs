@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using Unity.TPS.Game;
 namespace Unity.TPS.Gameplay {
+    enum JumpState {
+        Jumping,
+        Land
+    }
     public class PlayerAnimatorController : MonoBehaviour {
         Animator animator;
         PlayerCharacterController playerCharacterController;
@@ -12,17 +16,22 @@ namespace Unity.TPS.Gameplay {
         const string k_AnimMoveBackParameter = "MoveBack";
         const string k_AnimMoveSpeedParameter = "MoveSpeed";
         const string k_AnimIsMovingParameter = "isMoving";
+        const string k_AnimJumpedParameter = "Jumped";
+        const string k_AnimCloseLandParameter = "CloseLand";
+        const string k_AnimResetJumpParameter = "ResetJump";
         InputHandler inputHandler;
+        JumpState jumpState;
         private void Start() {
             playerCharacterController = GetComponent<PlayerCharacterController>();
             animator = GetComponent<Animator>();
             inputHandler = GetComponent<InputHandler>();
+            jumpState = JumpState.Land;
         }
         private void Update() {
             Vector3 MovementSpeed = playerCharacterController.GetMovementSpeed();
             float moveSpeed = MovementSpeed.sqrMagnitude;
             animator.SetFloat(k_AnimMoveSpeedParameter, moveSpeed);
-            if (!inputHandler.GetKeyDown(GameConstants.k_Button_A) && inputHandler.GetKeyDown(GameConstants.k_Button_S) && inputHandler.GetKeyDown(GameConstants.k_Button_D) && inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
+            if (!inputHandler.GetKeyDown(GameConstants.k_Button_A) && !inputHandler.GetKeyDown(GameConstants.k_Button_S) && !inputHandler.GetKeyDown(GameConstants.k_Button_D) && !inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
                 animator.SetBool(k_AnimIsMovingParameter, false);
             } else {
                 animator.SetBool(k_AnimIsMovingParameter, true);
@@ -47,6 +56,23 @@ namespace Unity.TPS.Gameplay {
             } else if (inputHandler.GetKeyUp(GameConstants.k_Button_D)) {
                 animator.SetBool(k_AnimMoveRightParameter, false);
             }
+        }
+        public void setJumpedAni() {
+            print("set trigger");
+            jumpState = JumpState.Jumping;
+            animator.SetTrigger(k_AnimJumpedParameter);
+            return;
+        }
+        public void setLandAni() {
+            animator.SetTrigger(k_AnimCloseLandParameter);
+            jumpState = JumpState.Land;
+        }
+        public bool isJumping() {
+            return jumpState == JumpState.Jumping;
+        }
+        public void resetJump() {
+            animator.SetTrigger(k_AnimResetJumpParameter);
+            jumpState = JumpState.Land;
         }
     }
 }

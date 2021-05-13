@@ -522,7 +522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 468180, guid: 5197bf90a75a5cc45ae1fe0742d601f6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.037
+      value: 3.19
       objectReference: {fileID: 0}
     - target: {fileID: 468180, guid: 5197bf90a75a5cc45ae1fe0742d601f6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1625,7 +1625,19 @@ MonoBehaviour:
   TurnSpeed: 100
   RotationSpeed: 200
   PlayerCamera: {fileID: 23173854}
-  JumpForce: 200
+  JumpForce: 30
+  vertSpeed: 0
+  MovementSpeed: {x: 0, y: 0, z: 0}
+  targetJumpSpeed: 0
+  fallSharpness: 2
+  fallSpeed: 0.1
+  GroundCheckLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  GroundCheckDistance: 0.03
+  isGrounded: 0
+  landHeight: 1
+  k_GroundCheckDistance: 0.05
 --- !u!143 &1579598418
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1641,7 +1653,7 @@ CharacterController:
   m_Radius: 0.58
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.1
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.65, z: 0}
 --- !u!114 &1579598419
