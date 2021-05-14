@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Unity.TPS.Game;
 namespace Unity.TPS.Gameplay {
-    enum JumpState {
+    public enum JumpState {
         Jumping,
         Land
     }
@@ -19,8 +19,9 @@ namespace Unity.TPS.Gameplay {
         const string k_AnimJumpedParameter = "Jumped";
         const string k_AnimCloseLandParameter = "CloseLand";
         const string k_AnimResetJumpParameter = "ResetJump";
+        const string k_AnimReloadParameter = "Reload";
         InputHandler inputHandler;
-        JumpState jumpState;
+        public JumpState jumpState;
         private void Start() {
             playerCharacterController = GetComponent<PlayerCharacterController>();
             animator = GetComponent<Animator>();
@@ -31,31 +32,32 @@ namespace Unity.TPS.Gameplay {
             Vector3 MovementSpeed = playerCharacterController.GetMovementSpeed();
             float moveSpeed = MovementSpeed.sqrMagnitude;
             animator.SetFloat(k_AnimMoveSpeedParameter, moveSpeed);
-            if (!inputHandler.GetKeyDown(GameConstants.k_Button_A) && !inputHandler.GetKeyDown(GameConstants.k_Button_S) && !inputHandler.GetKeyDown(GameConstants.k_Button_D) && !inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
-                animator.SetBool(k_AnimIsMovingParameter, false);
-            } else {
-                animator.SetBool(k_AnimIsMovingParameter, true);
-            }
-            if (inputHandler.GetKeyDown(GameConstants.k_Button_A)) {
-                animator.SetBool(k_AnimMoveLeftParameter, true);
-            } else if (inputHandler.GetKeyUp(GameConstants.k_Button_A)) {
-                animator.SetBool(k_AnimMoveLeftParameter, false);
-            }
-            if (inputHandler.GetKeyDown(GameConstants.k_Button_S)) {
-                animator.SetBool(k_AnimMoveBackParameter, true);
-            } else if (inputHandler.GetKeyUp(GameConstants.k_Button_S)) {
-                animator.SetBool(k_AnimMoveBackParameter, false);
-            }
-            if (inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
-                animator.SetBool(k_AnimMoveForwardParameter, true);
-            } else if (inputHandler.GetKeyUp(GameConstants.k_Button_W)) {
-                animator.SetBool(k_AnimMoveForwardParameter, false);
-            }
-            if (inputHandler.GetKeyDown(GameConstants.k_Button_D)) {
-                animator.SetBool(k_AnimMoveRightParameter, true);
-            } else if (inputHandler.GetKeyUp(GameConstants.k_Button_D)) {
-                animator.SetBool(k_AnimMoveRightParameter, false);
-            }
+            if (!isJumping())
+                if (!inputHandler.GetKeyDown(GameConstants.k_Button_A) && !inputHandler.GetKeyDown(GameConstants.k_Button_S) && !inputHandler.GetKeyDown(GameConstants.k_Button_D) && !inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
+                    animator.SetBool(k_AnimIsMovingParameter, false);
+                } else {
+                    animator.SetBool(k_AnimIsMovingParameter, true);
+                }
+                if (inputHandler.GetKeyDown(GameConstants.k_Button_A)) {
+                    animator.SetBool(k_AnimMoveLeftParameter, true);
+                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_A)) {
+                    animator.SetBool(k_AnimMoveLeftParameter, false);
+                }
+                if (inputHandler.GetKeyDown(GameConstants.k_Button_S)) {
+                    animator.SetBool(k_AnimMoveBackParameter, true);
+                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_S)) {
+                    animator.SetBool(k_AnimMoveBackParameter, false);
+                }
+                if (inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
+                    animator.SetBool(k_AnimMoveForwardParameter, true);
+                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_W)) {
+                    animator.SetBool(k_AnimMoveForwardParameter, false);
+                }
+                if (inputHandler.GetKeyDown(GameConstants.k_Button_D)) {
+                    animator.SetBool(k_AnimMoveRightParameter, true);
+                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_D)) {
+                    animator.SetBool(k_AnimMoveRightParameter, false);
+                }
         }
         public void setJumpedAni() {
             print("set trigger");
@@ -73,6 +75,12 @@ namespace Unity.TPS.Gameplay {
         public void resetJump() {
             animator.SetTrigger(k_AnimResetJumpParameter);
             jumpState = JumpState.Land;
+        }
+        public void setReload() {
+            animator.SetTrigger(k_AnimReloadParameter);
+        }
+        public AnimatorStateInfo GetStateInfo() {
+            return animator.GetCurrentAnimatorStateInfo(3);
         }
     }
 }

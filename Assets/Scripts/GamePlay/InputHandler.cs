@@ -9,7 +9,6 @@ namespace Unity.TPS.Gameplay
         PlayerCharacterController m_CharacterController;
         public bool InvertYAxis = false;
         bool m_FireInputWasHeld;
-
         private void Start() {
             m_CharacterController = GetComponent<PlayerCharacterController>();
 
@@ -18,7 +17,7 @@ namespace Unity.TPS.Gameplay
         
         }
         private void LateUpdate() {
-            m_FireInputWasHeld = GetFireInputHeld();
+            m_FireInputWasHeld = GetFireHeld();
             if (Input.GetMouseButtonDown(0)) {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
@@ -28,20 +27,15 @@ namespace Unity.TPS.Gameplay
                 Cursor.visible = true;
             }
         }
+        public bool GetReload() {
+            return Input.GetButtonDown(GameConstants.k_ButtonReload);
+        }
         public bool CanProcessInput() {
             return Cursor.lockState == CursorLockMode.Locked;
         }
-        public bool GetFireInputHeld() {
+        public bool GetFireHeld() {
             if (CanProcessInput()) {
-                bool isGamepad = Input.GetAxis(GameConstants.k_ButtonNameGamepadFire) != 0f;
-                if (isGamepad)
-                {
-                    return Input.GetAxis(GameConstants.k_ButtonNameGamepadFire) >= TriggerAxisThreshold;
-                }
-                else
-                {
-                    return Input.GetButton(GameConstants.k_ButtonNameFire);
-                }
+                return Input.GetButton(GameConstants.k_ButtonNameFire);
             }
             return false;
         }
@@ -121,6 +115,15 @@ namespace Unity.TPS.Gameplay
                 return Input.GetButtonUp(keyName);
             }
             return false;
+        }
+        public bool GetFireDown() {
+            return GetFireHeld() && !m_FireInputWasHeld;
+        }
+        public bool GetFireRelease() {
+            return !GetFireHeld() && m_FireInputWasHeld;
+        }
+        public bool GetSwitchFireMode() {
+            return Input.GetButtonDown(GameConstants.k_ButtonNameSwitchFireMode);
         }
 
     }    

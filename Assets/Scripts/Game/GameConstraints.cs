@@ -27,5 +27,6 @@ namespace Unity.TPS.Game
         public const string k_Button_A = "A";
         public const string k_Button_S = "S";
         public const string k_Button_D = "D";
+        public const string k_ButtonNameSwitchFireMode = "SwitchFireMode";
     }
 }

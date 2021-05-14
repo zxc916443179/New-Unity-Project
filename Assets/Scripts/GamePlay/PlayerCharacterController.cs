@@ -2,7 +2,7 @@
 using UnityEngine;
 namespace Unity.TPS.Gameplay
 {
-    enum PlayState {
+    public enum PlayState {
         idle,
         jumping,
         crounch,
@@ -28,7 +28,7 @@ namespace Unity.TPS.Gameplay
         public Vector3 MovementSpeed;
         PlayerAnimatorController playerAnimatorController;
         float lastJumpTime;
-        PlayState playState;
+        public PlayState playState;
         public float targetJumpSpeed = 0f;
         public float fallSharpness = 4f;
         public float fallSpeed = 0.1f;
@@ -47,10 +47,13 @@ namespace Unity.TPS.Gameplay
         // Update is called once per frame
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.Q)) {
+                Time.timeScale = Time.timeScale == 0 ? 1 : 0;
+            }
            HandleCharactorMovement();
         }
         private void FixedUpdate() {
-            if (playState == PlayState.jumping && MovementSpeed.y < 0 && checkHeight(landHeight, out RaycastHit hit)) {
+            if (playState == PlayState.jumping && MovementSpeed.y <= 0 && checkHeight(landHeight, out RaycastHit hit)) {
                 playerAnimatorController.setLandAni();
                 playState = PlayState.idle;
             }
@@ -59,7 +62,11 @@ namespace Unity.TPS.Gameplay
         public bool CheckGrounded() {
             float chosenGroundCheckDistance = isGrounded ? (m_controller.skinWidth + GroundCheckDistance) : k_GroundCheckDistance;
             if(checkHeight(chosenGroundCheckDistance, out RaycastHit hit)) {
-                return true;
+                // if (playState == PlayState.jumping) {
+                //     print(hit.collider.name);
+                //     Time.timeScale = 0;
+                // }
+                return hit.collider.name != "ToonSoldiers_gunner";
             }
             return false;
             // return Physics.Raycast(transform.position, -Vector3.up, 0.05f);
@@ -84,8 +91,7 @@ namespace Unity.TPS.Gameplay
                     vertSpeed = -8.0f;
                 }
                 targetJumpSpeed += vertSpeed;
-            } else {
-                if (playerAnimatorController.isJumping())playerAnimatorController.resetJump();
+            } else if (MovementSpeed.y <= 0){
                 isGrounded = true;
                 vertSpeed = 0f;
                 targetJumpSpeed = 0f;
@@ -93,7 +99,7 @@ namespace Unity.TPS.Gameplay
                 playState = PlayState.idle;
             }
             // handle jump
-            if (m_InputHandler.GetJumpInputDown() && CheckGrounded()) {
+            if (playState != PlayState.jumping && m_InputHandler.GetJumpInputDown() && CheckGrounded()) {
                 Debug.Log("space");
                 isGrounded = false;
                 targetJumpSpeed += JumpForce;
@@ -101,6 +107,7 @@ namespace Unity.TPS.Gameplay
                 lastJumpTime = Time.time;
                 playerAnimatorController.setJumpedAni();
                 print(targetJumpSpeed);
+                MovementSpeed.y += m_controller.skinWidth + k_GroundCheckDistance + 0.1f;
             }
             
             MovementSpeed.y = Mathf.Lerp(MovementSpeed.y, targetJumpSpeed, fallSharpness * Time.deltaTime);

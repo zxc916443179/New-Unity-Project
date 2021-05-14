@@ -752,6 +752,33 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &262313316 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 121572, guid: 5197bf90a75a5cc45ae1fe0742d601f6, type: 3}
+  m_PrefabInstance: {fileID: 194685150}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &262313317 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 430974, guid: 5197bf90a75a5cc45ae1fe0742d601f6, type: 3}
+  m_PrefabInstance: {fileID: 194685150}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &262313318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 262313316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4667fda26c5fc4eb5767d91758c48a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponMuzzle: {fileID: 2101398160}
+  bulletPrefab: {fileID: 1086664671600574, guid: 5953171a59c27394e9ad5cbb564affa8, type: 3}
+  maxAmmo: 30
+  ShootDelay: 0.5
+  BurstingDelay: 0.1
 --- !u!1 &368836416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1621,13 +1648,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b29e410278faca47bdcbe36ecd61508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 3
+  MoveSpeed: 15
   TurnSpeed: 100
   RotationSpeed: 200
   PlayerCamera: {fileID: 23173854}
-  JumpForce: 30
+  JumpForce: 35
   vertSpeed: 0
   MovementSpeed: {x: 0, y: 0, z: 0}
+  playState: 0
   targetJumpSpeed: 0
   fallSharpness: 2
   fallSpeed: 0.1
@@ -1670,11 +1698,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 0.1
   runSpeed: 5
+  jumpState: 0
 --- !u!4 &1579598420 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 468180, guid: 5197bf90a75a5cc45ae1fe0742d601f6, type: 3}
   m_PrefabInstance: {fileID: 194685150}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1579598421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579598415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5bb914c255f0b741bcc7a09bb337b51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeWeapon: {fileID: 262313318}
 --- !u!1 &1586680375
 GameObject:
   m_ObjectHideFlags: 0
@@ -2247,6 +2289,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &2101398159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2101398160}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2101398160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101398159}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -1.685, y: 0.111, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 262313317}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &2138677391
 GameObject:
   m_ObjectHideFlags: 0
@@ -2321,7 +2393,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 1.75605e-40, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 0, y: 2.21484e-40, z: 0, w: 7.40625}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0

@@ -48,7 +48,8 @@
      <Compile Include="Assets\WeaponMgr.cs" />
      <Compile Include="Assets\Scripts\Game\WeaponController.cs" />
      <Compile Include="Assets\Scripts\Game\DebugUtility.cs" />
-     <Compile Include="Assets\Projectile.cs" />
+     <Compile Include="Assets\Scripts\GamePlay\PlayerWeaponController.cs" />
+     <Compile Include="Assets\Scripts\Game\Projectile.cs" />
     <Reference Include="UnityEngine">
         <HintPath>F:/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
