@@ -39,17 +39,19 @@
      <Compile Include="Assets\Scripts\GamePlay\PlayerCharacterController.cs" />
      <Compile Include="Assets\Scripts\GamePlay\InputHandler.cs" />
      <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
+     <Compile Include="Assets\Scripts\Game\Health.cs" />
      <Compile Include="Assets\Scripts\GamePlay\WeaponManager.cs" />
      <Compile Include="Assets\Scripts\Game\GameConstraints.cs" />
      <Compile Include="Assets\Scripts\GamePlay\PlayerAnimatorController.cs" />
      <Compile Include="Assets\RifleWeapon.cs" />
+     <Compile Include="Assets\Scripts\Game\Projectile.cs" />
      <Compile Include="Assets\Scripts\GamePlay\EnemyController.cs" />
      <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+     <Compile Include="Assets\Scripts\GamePlay\PlayerWeaponController.cs" />
      <Compile Include="Assets\WeaponMgr.cs" />
      <Compile Include="Assets\Scripts\Game\WeaponController.cs" />
      <Compile Include="Assets\Scripts\Game\DebugUtility.cs" />
-     <Compile Include="Assets\Scripts\GamePlay\PlayerWeaponController.cs" />
-     <Compile Include="Assets\Scripts\Game\Projectile.cs" />
+     <Compile Include="Assets\Scripts\GamePlay\EnemyAnimatorController.cs" />
     <Reference Include="UnityEngine">
         <HintPath>F:/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>

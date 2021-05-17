@@ -35,7 +35,7 @@ namespace Unity.TPS.Gameplay
         public LayerMask GroundCheckLayers = -1;
         public float GroundCheckDistance = 0.05f;
         public bool isGrounded = false;
-        public float landHeight = 0.7f;
+        public float landHeight = 0.1f;
         void Start()
         {
             m_controller = GetComponent<CharacterController>();

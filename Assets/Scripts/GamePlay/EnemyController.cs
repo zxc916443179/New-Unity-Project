@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
-namespace Unity.TPS.Game{
+using Unity.TPS.Game;
+namespace Unity.TPS.Gameplay {
     public class EnemyController : MonoBehaviour
     {
         private GameObject target;
@@ -9,21 +10,34 @@ namespace Unity.TPS.Game{
 
         
         const string k_AnimMoveSpeedParameter = "MoveSpeed";
-        Animator animator;
+        EnemyAnimatorController enemyAnimatorController;
+        Health health;
         void Start()
         {
             target = GameObject.FindWithTag("Player");
             agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-            animator = GetComponent<Animator>();
-            
+            enemyAnimatorController = GetComponent<EnemyAnimatorController>();
+            health = GetComponent<Health>();
+            health.onDie += onDie;
+            health.onDamage += onDamage;
         }
 
         // Update is called once per frame
         void Update()
         {
             float moveSpeed = agent.velocity.magnitude;
-            animator.SetFloat(k_AnimMoveSpeedParameter, moveSpeed);
-            agent.SetDestination(target.transform.position);
+            enemyAnimatorController.SetSpeed(moveSpeed);
+        }
+        void onDie() {
+            enemyAnimatorController.SetDied();
+            Invoke("DestroySelf", 3f);
+
+        }
+        void onDamage() {
+            enemyAnimatorController.SetTakeDamage();
+        }
+        void DestroySelf() {
+            Destroy(this.gameObject);
         }
     }
 }
