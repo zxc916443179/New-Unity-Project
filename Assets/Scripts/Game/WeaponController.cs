@@ -1,12 +1,17 @@
 using UnityEngine;
-using Unity.TPS.Gameplay;
-
+using UnityEngine.Events;
+using Unity.TPS.Audio;
 namespace Unity.TPS.Game {
     public class WeaponController : MonoBehaviour {
         public Transform weaponMuzzle;
         public GameObject bulletPrefab;
         public int maxAmmo = 30;
         int m_currentAmmo;
+        public int CurrentAmmo {
+            get {
+                return m_currentAmmo;
+            }
+        }
         enum FireMode {
             Single,
             Burst,
@@ -17,6 +22,9 @@ namespace Unity.TPS.Game {
         public float ShootDelay = 0.5f;
         public float BurstingDelay = 0.1f;
         int BurstingBullets = 0;
+        public AudioController audioShootController;
+        public AudioController audioReloadController;
+        public UnityAction NeedReload;
         private void Start() {
             m_currentAmmo = maxAmmo;
             fireMode = 0;
@@ -24,15 +32,20 @@ namespace Unity.TPS.Game {
         }
         private void Update() {
         }
+        public bool fire() {
+            return fire(true, false, false);
+        }
         public bool fire(bool inputDown, bool inputHeld, bool inputUp) {
             
             if (BurstingBullets > 0) {
                 return handleBurst();
             }
-            if (m_currentAmmo < 0) {
-                return reload();
+            if (m_currentAmmo <= 0) {
+                reload();
+                return false;
             }
             bool shoot = inputDown || inputHeld;
+
             switch(fireMode) {
                 case FireMode.Single:
                     if (inputDown) {
@@ -58,6 +71,7 @@ namespace Unity.TPS.Game {
         }
         public bool reload() {
             if (m_currentAmmo < maxAmmo) {
+                if (NeedReload != null) NeedReload.Invoke();
                 return handleReload();
             }
             return false;
@@ -65,6 +79,7 @@ namespace Unity.TPS.Game {
         public bool handleReload() {
             try {
                 m_currentAmmo = maxAmmo;
+                audioReloadController.Play();
                 return true;
             } catch (System.Exception e) {
                 print(e.ToString());
@@ -77,9 +92,10 @@ namespace Unity.TPS.Game {
         }
         private bool handleFire() {
             if (m_currentAmmo > 0 && m_LastShootTime + ShootDelay < Time.time) {
+                audioShootController.Play();
                 m_LastShootTime = Time.time;
                 m_currentAmmo --;
-                Instantiate(bulletPrefab, weaponMuzzle.position, weaponMuzzle.rotation);
+                InstantiateBullet();
                 return true;
             }
             return false;
@@ -87,13 +103,18 @@ namespace Unity.TPS.Game {
         public bool handleBurst() {
             if (m_currentAmmo <= 0) BurstingBullets = 0;
             else if (m_LastShootTime + BurstingDelay < Time.time) {
+                audioShootController.Play();
                 BurstingBullets --;
                 m_currentAmmo --;
                 m_LastShootTime = Time.time;
-                Instantiate(bulletPrefab, weaponMuzzle.position, weaponMuzzle.rotation);
+                InstantiateBullet();
                 return true;
             }
             return false;
+        }
+        void InstantiateBullet() {
+            GameObject go = Instantiate(bulletPrefab, weaponMuzzle.position, weaponMuzzle.rotation);
+            go.transform.tag = transform.tag;
         }
         public string GetFireMode() {
             return fireMode.ToString();

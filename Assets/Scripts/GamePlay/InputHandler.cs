@@ -9,6 +9,9 @@ namespace Unity.TPS.Gameplay
         PlayerCharacterController m_CharacterController;
         public bool InvertYAxis = false;
         bool m_FireInputWasHeld;
+        public bool isRunning;
+        public bool isWalking;
+        public bool isCrouching;
         private void Start() {
             m_CharacterController = GetComponent<PlayerCharacterController>();
 
@@ -26,6 +29,10 @@ namespace Unity.TPS.Gameplay
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
+        }
+        private void Update() {
+            isWalking = Input.GetKey(KeyCode.LeftAlt);
+            isCrouching = Input.GetKey(KeyCode.C);
         }
         public bool GetReload() {
             return Input.GetButtonDown(GameConstants.k_ButtonReload);
@@ -89,7 +96,6 @@ namespace Unity.TPS.Gameplay
                 Vector3 move = new Vector3(Input.GetAxisRaw(GameConstants.k_AxisNameHorizontal), 0f,
                     Input.GetAxisRaw(GameConstants.k_AxisNameVertical));
 
-                // constrain move input to a maximum magnitude of 1, otherwise diagonal movement might exceed the max move speed defined
                 move = Vector3.ClampMagnitude(move, 1);
 
                 return move;

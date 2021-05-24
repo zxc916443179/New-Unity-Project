@@ -9,8 +9,16 @@ namespace Unity.TPS.Gameplay {
         const string k_AnimDamagedParameter = "TakeDamage";
         const string k_AnimDiedParameter = "Died";
         const string k_AnimMoveSpeedParameter = "MoveSpeed";
+        const string k_AnimVerticalParameter = "Vertical";
+        const string k_AnimHorizontalParameter = "Horizontal";
         public void SetSpeed(float speed) {
             animator.SetFloat(k_AnimMoveSpeedParameter, speed);
+        }
+        public void SetHorizontal(float horizontal) {
+            animator.SetFloat(k_AnimHorizontalParameter, horizontal);
+        }
+        public void SetVertical(float vertical) {
+            animator.SetFloat(k_AnimVerticalParameter, vertical);
         }
         public void SetTakeDamage() {
             animator.SetTrigger(k_AnimDamagedParameter);

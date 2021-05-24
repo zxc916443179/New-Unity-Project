@@ -1,5 +1,7 @@
 ﻿
 using UnityEngine;
+using Unity.TPS.Audio;
+using Unity.TPS.Game;
 namespace Unity.TPS.Gameplay
 {
     public enum PlayState {
@@ -11,7 +13,9 @@ namespace Unity.TPS.Gameplay
     }
     public class PlayerCharacterController : MonoBehaviour {
         // Start is called before the first frame update
-        public float MoveSpeed = 3f;
+        public float RunSpeed = 3f;
+        public float WalkSpeed = 1f;
+        public float CrouchSpeed = 0.5f;
         public float TurnSpeed = 100;
         float m_CameraVerticalAngle = 0f;
         InputHandler m_InputHandler;
@@ -36,12 +40,21 @@ namespace Unity.TPS.Gameplay
         public float GroundCheckDistance = 0.05f;
         public bool isGrounded = false;
         public float landHeight = 0.1f;
+        public AudioController audioController;
+
+        Vector3 previousPosition;
+        public float minimumMoveThreshold;
+        Health health;
         void Start()
         {
+            health = GetComponent<Health>();
             m_controller = GetComponent<CharacterController>();
             m_InputHandler = GetComponent<InputHandler>();
             playerAnimatorController = GetComponent<PlayerAnimatorController>();
             playState = PlayState.idle;
+            previousPosition = transform.position;
+            health.onDamage += onDamage;
+            health.onDie += onDie;
         }
 
         // Update is called once per frame
@@ -50,7 +63,8 @@ namespace Unity.TPS.Gameplay
             if (Input.GetKeyDown(KeyCode.Q)) {
                 Time.timeScale = Time.timeScale == 0 ? 1 : 0;
             }
-           HandleCharactorMovement();
+            HandleCharactorMovement();
+            HandleRotation();   
         }
         private void FixedUpdate() {
             if (playState == PlayState.jumping && MovementSpeed.y <= 0 && checkHeight(landHeight, out RaycastHit hit)) {
@@ -83,8 +97,11 @@ namespace Unity.TPS.Gameplay
         }
         void HandleCharactorMovement() {
             // m_RigidBody.MovePosition(m_RigidBody.position + movementDir * MoveSpeed * Time.deltaTime);
+            float moveSpeed = RunSpeed;
+            if (m_InputHandler.isCrouching) moveSpeed = CrouchSpeed;
+            if (m_InputHandler.isWalking) moveSpeed = WalkSpeed;
             Vector3 worldspaceMoveInput = transform.TransformVector(m_InputHandler.GetMoveInput());
-            Vector3 targetSpeed = worldspaceMoveInput * MoveSpeed;
+            Vector3 targetSpeed = worldspaceMoveInput * RunSpeed;
             if (!CheckGrounded()) {
                 vertSpeed += -9.8f * fallSpeed * Time.deltaTime;
                 if (vertSpeed < -8.0f) {
@@ -114,7 +131,14 @@ namespace Unity.TPS.Gameplay
             MovementSpeed.x = Mathf.Lerp(MovementSpeed.x, targetSpeed.x, 10 * Time.deltaTime);
             MovementSpeed.z = Mathf.Lerp(MovementSpeed.z, targetSpeed.z, 10 * Time.deltaTime);
             m_controller.Move(MovementSpeed * Time.deltaTime);
-            HandleRotation();
+
+            if (Vector3.Distance(previousPosition, transform.position) >= minimumMoveThreshold)
+                audioController.Play();
+            else {
+                audioController.Stop();
+            }
+
+            previousPosition = transform.position;
         }
         void HandleRotation() {
             m_CameraVerticalAngle -= m_InputHandler.GetLookInputsVertical() * RotationSpeed * RotationMultiplier;
@@ -138,6 +162,18 @@ namespace Unity.TPS.Gameplay
         Vector3 GetCapsuleTopHemisphere(float atHeight)
         {
             return transform.position + (transform.up * (atHeight - m_controller.radius));
+        }
+
+        void onDamage() {
+            print("take damage");
+        }
+        void onDie(GameObject GO) {
+            print("die");
+            playerAnimatorController.SetDie();
+            Invoke("DestroySelf", 0f);
+        }
+        void DestroySelf() {
+            Destroy(this.gameObject);
         }
     }
     

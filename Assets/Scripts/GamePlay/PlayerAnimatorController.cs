@@ -8,20 +8,24 @@ namespace Unity.TPS.Gameplay {
     public class PlayerAnimatorController : MonoBehaviour {
         Animator animator;
         PlayerCharacterController playerCharacterController;
-        public float walkSpeed = 0.1f;
-        public float runSpeed = 5f;
-        const string k_AnimMoveLeftParameter = "MoveLeft";
-        const string k_AnimMoveRightParameter = "MoveRight";
-        const string k_AnimMoveForwardParameter = "MoveForward";
-        const string k_AnimMoveBackParameter = "MoveBack";
-        const string k_AnimMoveSpeedParameter = "MoveSpeed";
-        const string k_AnimIsMovingParameter = "isMoving";
         const string k_AnimJumpedParameter = "Jumped";
         const string k_AnimCloseLandParameter = "CloseLand";
         const string k_AnimResetJumpParameter = "ResetJump";
         const string k_AnimReloadParameter = "Reload";
+        const string k_AnimIsWalkingParameter = "IsWalking";
+        const string k_AnimIsRunningParameter = "IsRunning";
+        const string k_AnimIsCrouchingParameter = "IsCrouching";
+        const string k_AnimHorizontalParameter = "Horizontal";
+        const string k_AnimVerticalParameter = "Vertical";
+        const string k_AnimAimAngleParameter = "AimAngle";
+        const string k_AnimShootParameter = "Shoot";
+        const string k_AnimBurstShootParameter = "BurstShoot";
+        const string k_AnimAutoShootParameter = "AutoShoot";
+        const string k_AnimDieParameter = "Die";
         InputHandler inputHandler;
         public JumpState jumpState;
+        public int ReloadAniLayerIndex = 3;
+        float angle;
         private void Start() {
             playerCharacterController = GetComponent<PlayerCharacterController>();
             animator = GetComponent<Animator>();
@@ -29,38 +33,23 @@ namespace Unity.TPS.Gameplay {
             jumpState = JumpState.Land;
         }
         private void Update() {
-            Vector3 MovementSpeed = playerCharacterController.GetMovementSpeed();
-            float moveSpeed = MovementSpeed.sqrMagnitude;
-            animator.SetFloat(k_AnimMoveSpeedParameter, moveSpeed);
-            if (!isJumping())
-                if (!inputHandler.GetKeyDown(GameConstants.k_Button_A) && !inputHandler.GetKeyDown(GameConstants.k_Button_S) && !inputHandler.GetKeyDown(GameConstants.k_Button_D) && !inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
-                    animator.SetBool(k_AnimIsMovingParameter, false);
-                } else {
-                    animator.SetBool(k_AnimIsMovingParameter, true);
-                }
-                if (inputHandler.GetKeyDown(GameConstants.k_Button_A)) {
-                    animator.SetBool(k_AnimMoveLeftParameter, true);
-                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_A)) {
-                    animator.SetBool(k_AnimMoveLeftParameter, false);
-                }
-                if (inputHandler.GetKeyDown(GameConstants.k_Button_S)) {
-                    animator.SetBool(k_AnimMoveBackParameter, true);
-                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_S)) {
-                    animator.SetBool(k_AnimMoveBackParameter, false);
-                }
-                if (inputHandler.GetKeyDown(GameConstants.k_Button_W)) {
-                    animator.SetBool(k_AnimMoveForwardParameter, true);
-                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_W)) {
-                    animator.SetBool(k_AnimMoveForwardParameter, false);
-                }
-                if (inputHandler.GetKeyDown(GameConstants.k_Button_D)) {
-                    animator.SetBool(k_AnimMoveRightParameter, true);
-                } else if (inputHandler.GetKeyUp(GameConstants.k_Button_D)) {
-                    animator.SetBool(k_AnimMoveRightParameter, false);
-                }
+            animator.SetBool(k_AnimIsCrouchingParameter, inputHandler.isCrouching);
+            animator.SetBool(k_AnimIsWalkingParameter, inputHandler.isWalking);
+            angle = Camera.main.transform.eulerAngles.x - 180;
+            if (angle > 0) {
+                angle -= 180;
+            } else {
+                angle += 180;
+            }
+            animator.SetFloat(k_AnimAimAngleParameter, angle);
+            if (!isJumping()) {
+                Vector3 moveVec = inputHandler.GetMoveInput();
+                animator.SetFloat(k_AnimVerticalParameter, moveVec.z);
+                animator.SetFloat(k_AnimHorizontalParameter, moveVec.x);
+            }
+                
         }
         public void setJumpedAni() {
-            print("set trigger");
             jumpState = JumpState.Jumping;
             animator.SetTrigger(k_AnimJumpedParameter);
             return;
@@ -80,7 +69,18 @@ namespace Unity.TPS.Gameplay {
             animator.SetTrigger(k_AnimReloadParameter);
         }
         public AnimatorStateInfo GetStateInfo() {
-            return animator.GetCurrentAnimatorStateInfo(3);
+            return animator.GetCurrentAnimatorStateInfo(ReloadAniLayerIndex);
+        }
+
+        public void setShoot(bool isBursting) {
+            if (isBursting) {
+                animator.SetTrigger(k_AnimBurstShootParameter);
+            } else {
+                animator.SetTrigger(k_AnimShootParameter);
+            }
+        }
+        public void SetDie() {
+            animator.SetTrigger(k_AnimDieParameter);
         }
     }
 }

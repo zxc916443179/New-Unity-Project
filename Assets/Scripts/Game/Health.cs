@@ -5,7 +5,7 @@ namespace Unity.TPS.Game
     public class Health : MonoBehaviour {
         public float maxHealth = 100;
         float currentHealth;
-        public UnityAction onDie;
+        public UnityAction<GameObject> onDie;
         public UnityAction onDamage;
         bool isDead;
         private void Start() {
@@ -15,16 +15,27 @@ namespace Unity.TPS.Game
         private void Update() {
             
         }
-        public void TakeDamage(float damage) {
-            print("take damage: " + damage);
-            currentHealth -= damage;
-            HandleDeath();
-            onDamage?.Invoke();
+        public bool TakeDamage(float damage, string tag) {
+            if (tag == transform.tag) {
+                return false;
+            }
+            if (!isDead) {
+                print("take damage: " + damage);
+                currentHealth -= damage;
+                if (currentHealth < 0) currentHealth = 0;
+                HandleDeath();
+                onDamage?.Invoke();
+            }
+            return true;
         }
         void HandleDeath() {
             if (currentHealth <= 0) {
-                onDie?.Invoke();
+                onDie?.Invoke(this.gameObject);
+                isDead = true;
             }
+        }
+        public float GetCurrentHealth() {
+            return currentHealth;
         }
     }
 }

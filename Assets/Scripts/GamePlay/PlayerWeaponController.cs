@@ -7,9 +7,11 @@ namespace Unity.TPS.Gameplay {
         InputHandler m_inputHandler;
         PlayerAnimatorController playerAnimatorController;
         bool isReloading = false;
+        public bool IsAutoReload = true;
         void Awake() {
             m_inputHandler = GetComponent<InputHandler>();
             playerAnimatorController = GetComponent<PlayerAnimatorController>();
+            activeWeapon.NeedReload += ForceReload;
         }
         void Update() {
             if (playerAnimatorController.GetStateInfo().IsName("heavy_combat_reload")) {
@@ -18,7 +20,8 @@ namespace Unity.TPS.Gameplay {
                 isReloading = false;
             }
             if (!isReloading) {
-                activeWeapon.fire(m_inputHandler.GetFireDown(), m_inputHandler.GetFireHeld(), m_inputHandler.GetFireRelease());
+                if(activeWeapon.fire(m_inputHandler.GetFireDown(), m_inputHandler.GetFireHeld(), m_inputHandler.GetFireRelease()))
+                    playerAnimatorController.setShoot(activeWeapon.GetFireMode() == "Burst");
                 if (m_inputHandler.GetSwitchFireMode()) {
                     activeWeapon.switchFireMode();
                 }
@@ -28,6 +31,9 @@ namespace Unity.TPS.Gameplay {
                     }
                 }
             }
+        }
+        void ForceReload() {
+            playerAnimatorController.setReload();
         }
     }
 }
